@@ -305,6 +305,30 @@ pub extern "kernel32" fn WaitForMultipleObjectsEx(
     bAlertable: BOOL,
 ) callconv(.winapi) DWORD;
 
+// File Mapping
+
+pub extern "kernel32" fn CreateFileMappingW(
+    hFile: HANDLE,
+    lpFileMappingAttributes: ?*SECURITY_ATTRIBUTES,
+    flProtect: DWORD,
+    dwMaximumSizeHigh: DWORD,
+    dwMaximumSizeLow: DWORD,
+    lpName: LPCWSTR,
+) callconv(.winapi) ?HANDLE;
+
+pub extern "kernel32" fn UnmapViewOfFile(
+    lpBaseAddress: LPCVOID,
+) callconv(.winapi) BOOL;
+
+pub extern "kernel32" fn MapViewOfFile(
+    hFileMappingObject: HANDLE,
+    dwDesiredAccess: DWORD,
+    dwFileOffsetHigh: DWORD,
+    dwMaximumSizeHigh: DWORD,
+    dwFileOffsetLow: DWORD,
+    dwNumberOfBytesToMap: SIZE_T,
+) callconv(.winapi) ?LPVOID;
+
 // Process Management
 
 pub extern "kernel32" fn CreateProcessW(

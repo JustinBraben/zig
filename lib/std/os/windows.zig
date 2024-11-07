@@ -1943,6 +1943,78 @@ pub fn CreateProcessW(
     }
 }
 
+pub const CreateFileMappingError = error{
+    FileNotFound,
+    AccessDenied,
+    InvalidName,
+    NameTooLong,
+    Unexpected,
+};
+
+pub fn CreateFileMappingW(
+    hFile: HANDLE,
+    lpFileMappingAttributes: ?*SECURITY_ATTRIBUTES,
+    flProtect: DWORD,
+    dwMaximumSizeHigh: DWORD,
+    dwMaximumSizeLow: DWORD,
+    lpName: LPCWSTR
+) CreateFileMappingError!HANDLE {
+    return kernel32.CreateFileMappingW(
+        hFile, 
+        lpFileMappingAttributes, 
+        flProtect,
+        dwMaximumSizeHigh,
+        dwMaximumSizeLow,
+        lpName
+        ) orelse {
+        switch (GetLastError()) {
+            .FILE_NOT_FOUND => return error.FileNotFound,
+            .ACCESS_DENIED => return error.AccessDenied,
+            .INVALID_NAME => return error.InvalidName,
+            .BUFFER_OVERFLOW => return error.NameTooLong,
+            else => |err| return unexpectedError(err),
+        }
+    };
+}
+
+pub fn UnmapViewOfFile(lpBaseAddress: LPCVOID) BOOL {
+    return kernel32.UnmapViewOfFile(lpBaseAddress);
+}
+
+pub const MapViewOfFileError = error{
+    FileNotFound,
+    AccessDenied,
+    InvalidName,
+    NameTooLong,
+    Unexpected,
+};
+
+pub fn MapViewOfFile(
+    hFileMappingObject: HANDLE,
+    dwDesiredAccess: DWORD,
+    dwFileOffsetHigh: DWORD,
+    dwMaximumSizeHigh: DWORD,
+    dwFileOffsetLow: DWORD,
+    dwNumberOfBytesToMap: SIZE_T,
+) MapViewOfFileError!LPVOID {
+    return kernel32.MapViewOfFile(
+        hFileMappingObject, 
+        dwDesiredAccess, 
+        dwFileOffsetHigh,
+        dwMaximumSizeHigh,
+        dwFileOffsetLow,
+        dwNumberOfBytesToMap
+        ) orelse {
+        switch (GetLastError()) {
+            .FILE_NOT_FOUND => return error.FileNotFound,
+            .ACCESS_DENIED => return error.AccessDenied,
+            .INVALID_NAME => return error.InvalidName,
+            .BUFFER_OVERFLOW => return error.NameTooLong,
+            else => |err| return unexpectedError(err),
+        }
+    };
+} 
+
 pub const LoadLibraryError = error{
     FileNotFound,
     Unexpected,
